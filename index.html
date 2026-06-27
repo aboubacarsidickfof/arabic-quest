@@ -61,6 +61,43 @@ body::before{content:'';position:fixed;inset:0;
 .st{opacity:.2}.st.on{opacity:1;color:var(--gold)}
 .lock-ico{position:absolute;top:14px;right:14px;opacity:.4;font-size:1rem}
 
+/* ─── Grammar module ─── */
+.gram-progress-banner{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-bottom:16px;font-size:.82rem;color:var(--muted);text-align:center}
+.gram-progress-banner strong{color:var(--gold)}
+.gram-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.gram-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:all .2s;position:relative;text-align:center}
+.gram-card:hover:not(.locked){border-color:var(--gold);transform:translateY(-2px)}
+.gram-card.locked{opacity:.35;cursor:not-allowed}
+.gram-card.done{border-color:var(--green);background:rgba(34,197,94,.06)}
+.gram-card-num{font-size:.65rem;font-weight:700;color:var(--gold);letter-spacing:1px;margin-bottom:4px}
+.gram-card-title{font-size:.74rem;font-weight:600;line-height:1.3;color:var(--text)}
+.gram-card-check{position:absolute;top:8px;right:8px;font-size:.8rem}
+.gram-card-lock{position:absolute;top:8px;right:8px;font-size:.8rem;opacity:.5}
+
+.fiche-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:26px 22px;margin-bottom:16px;animation:slideUp .25s ease}
+.fiche-num{font-size:.65rem;font-weight:700;letter-spacing:3px;color:var(--gold);background:var(--gold-d);display:inline-block;padding:3px 10px;border-radius:50px;margin-bottom:10px}
+.fiche-title{font-size:1.25rem;font-weight:800;margin-bottom:4px}
+.fiche-ar{font-family:'Amiri',serif;font-size:1.5rem;color:var(--gold-l);direction:rtl;margin-bottom:18px}
+.fiche-block{border-radius:14px;padding:16px 18px;margin-bottom:14px}
+.fiche-block-lbl{font-size:.68rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;opacity:.85}
+.summary-block{background:rgba(212,168,67,.08);border:1px solid rgba(212,168,67,.25)}
+.summary-block .fiche-block-lbl{color:var(--gold)}
+.fiche-block-txt{font-size:.92rem;line-height:1.6;color:var(--text)}
+.example-block{background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.2)}
+.example-block .fiche-block-lbl{color:var(--blue)}
+.fiche-example-line{text-align:center;margin-bottom:2px}
+.fiche-ex-ar{font-family:'Amiri',serif;font-size:1.5rem;direction:rtl;color:var(--text)}
+.fiche-ex-fr{text-align:center;font-size:.82rem;color:var(--muted);margin-bottom:14px}
+.verse-block{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2)}
+.verse-block .fiche-block-lbl{color:var(--green)}
+.fiche-verse-ar{font-family:'Amiri',serif;font-size:1.4rem;direction:rtl;text-align:center;line-height:2;color:var(--text);margin-bottom:10px}
+.fiche-verse-fr{font-size:.85rem;font-style:italic;color:var(--text);line-height:1.5;margin-bottom:6px}
+.fiche-verse-ref{font-size:.75rem;color:var(--muted);text-align:right}
+.fiche-source{font-size:.68rem;color:var(--muted);line-height:1.5;text-align:center;padding-top:10px;border-top:1px solid var(--border)}
+.fiche-source a{color:var(--gold);text-decoration:none}
+.fiche-source a:hover{text-decoration:underline}
+.gram-question{font-size:1.15rem!important;font-weight:700!important;line-height:1.4;font-family:'Syne',sans-serif!important}
+
 /* ─── Mode cards (flashcard/quiz/revision/chrono) ─── */
 .mode-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
 @media(max-width:480px){.mode-grid{grid-template-columns:1fr}}
@@ -220,6 +257,7 @@ body::before{content:'';position:fixed;inset:0;
   <div id="scr-home" class="scr on">
     <div class="nav-tabs">
       <button class="nav-tab on" onclick="homeTab('levels')">Niveaux</button>
+      <button class="nav-tab" onclick="homeTab('grammar')">Grammaire</button>
       <button class="nav-tab" onclick="homeTab('stats')">Statistiques</button>
       <button class="nav-tab" onclick="homeTab('badges')">Badges</button>
     </div>
@@ -233,6 +271,12 @@ body::before{content:'';position:fixed;inset:0;
         </div>
       </div>
       <div class="lvl-grid" id="lvl-grid"></div>
+    </div>
+
+    <!-- GRAMMAR TAB -->
+    <div id="tab-grammar" style="display:none">
+      <div class="gram-progress-banner" id="gram-progress-banner"></div>
+      <div class="gram-grid" id="gram-grid"></div>
     </div>
 
     <!-- STATS TAB -->
@@ -334,6 +378,70 @@ body::before{content:'';position:fixed;inset:0;
       <div class="res-acts">
         <button class="res-btn sec" onclick="retryLvl()">🔄 Réessayer</button>
         <button class="res-btn pri" id="r-next">Niveau suivant →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ GRAMMAR FICHE (reading) ══ -->
+  <div id="scr-gramread" class="scr">
+    <div class="quiz-hdr">
+      <button class="back-btn" onclick="show('home');renderHome()">← Accueil</button>
+      <div class="quiz-meta">
+        <div class="quiz-lvl-lbl" id="gr-lbl">Fiche 1 / 42</div>
+      </div>
+    </div>
+    <div class="fiche-card" id="fiche-card">
+      <div class="fiche-num" id="fiche-num">FICHE #1</div>
+      <div class="fiche-title" id="fiche-title"></div>
+      <div class="fiche-ar" id="fiche-ar"></div>
+      <div class="fiche-block summary-block">
+        <div class="fiche-block-lbl">📋 Résumé de la règle</div>
+        <div class="fiche-block-txt" id="fiche-summary"></div>
+      </div>
+      <div class="fiche-block example-block">
+        <div class="fiche-block-lbl">✏️ Exemple</div>
+        <div class="fiche-example-line"><span class="fiche-ex-ar" id="fiche-ex-ar1"></span></div>
+        <div class="fiche-ex-fr" id="fiche-ex-fr1"></div>
+        <div class="fiche-example-line" id="fiche-ex-line2"><span class="fiche-ex-ar" id="fiche-ex-ar2"></span></div>
+        <div class="fiche-ex-fr" id="fiche-ex-fr2"></div>
+      </div>
+      <div class="fiche-block verse-block">
+        <div class="fiche-block-lbl">📖 Exemple coranique</div>
+        <div class="fiche-verse-ar" id="fiche-verse-ar"></div>
+        <div class="fiche-verse-fr" id="fiche-verse-fr"></div>
+        <div class="fiche-verse-ref" id="fiche-verse-ref"></div>
+      </div>
+      <div class="fiche-source">Contenu pédagogique tiré des fiches <strong>« Les règles de grammaire de la méthode de Médine (Tome 1) »</strong> — © <a href="https://www.arabereussite.com" target="_blank" rel="noopener">Arabe Réussite — www.arabereussite.com</a>. Traduction des versets : Dr Hamidullah (revue, complexe du roi Fahd).</div>
+    </div>
+    <button class="submit-btn" onclick="goToGramQuiz()">J'ai compris, passer au quiz →</button>
+  </div>
+
+  <!-- ══ GRAMMAR QCM ══ -->
+  <div id="scr-gramquiz" class="scr">
+    <div class="quiz-hdr">
+      <button class="back-btn" onclick="show('gramread')">← Revoir la fiche</button>
+      <div class="quiz-meta">
+        <div class="quiz-lvl-lbl" id="gq-lbl">Fiche 1 — Question</div>
+      </div>
+    </div>
+    <div class="q-card" id="gq-card">
+      <div class="q-tag">QCM · Grammaire</div>
+      <div class="q-word gram-question" id="gq-question"></div>
+    </div>
+    <div class="opts" id="gq-opts"></div>
+    <div class="feedback" id="gq-feedback" style="display:none"></div>
+    <button class="next-btn" id="gq-next-btn" style="display:none" onclick="gramQuizNext()">Continuer →</button>
+  </div>
+
+  <!-- ══ GRAMMAR RESULT (fiche unlocked) ══ -->
+  <div id="scr-gramresult" class="scr">
+    <div class="res-card">
+      <div class="res-ico" id="gr-res-ico">🎓</div>
+      <div class="res-title" id="gr-res-title">Bravo !</div>
+      <div class="res-sub" id="gr-res-sub"></div>
+      <div class="res-acts">
+        <button class="res-btn sec" onclick="show('gramread');renderFiche(currentFicheN)">🔄 Revoir la fiche</button>
+        <button class="res-btn pri" id="gr-res-next">Fiche suivante →</button>
       </div>
     </div>
   </div>
@@ -450,6 +558,261 @@ const LEVELS=[
   ]}
 ];
 
+const GRAMMAR_FICHES = [
+{n:1,title:"Les pronoms démonstratifs (1)",ar:"أَسْمَاءُ الْإِشَارَةِ",
+summary:"Catégorie de noms utilisée pour désigner ou montrer une personne ou une chose. On utilise différents termes selon que le nom désigné est proche ou éloigné.",
+example:{ar:"هٰذَا قَلَمٌ",fr:"C'est un crayon (ici) — proche : هٰذَا",ar2:"ذٰلِكَ كِتَابٌ",fr2:"C'est un livre (là-bas) — éloigné : ذٰلِكَ"},
+verse:{ar:"قَالَ أَنَا يُوسُفُ وَهٰذَا أَخِي قَدْ مَنَّ اللَّهُ عَلَيْنَا",fr:"Il dit : « Je suis Joseph, et voici mon frère. Certes, Allah nous a favorisés... »",ref:"Sourate Yousouf (12:90)"},
+q:{question:"Quel pronom démonstratif utilise-t-on pour un nom proche ?",options:["هٰذَا (proche)","ذٰلِكَ (éloigné)","مَنْ (qui)","هُوَ (il)"],correct:0}},
+
+{n:2,title:"Les pronoms interrogatifs (1)",ar:"أَسْمَاءُ الِاسْتِفْهَامِ",
+summary:"Catégorie de noms utilisée pour interroger sur la nature des choses. On utilise différents termes selon que la chose est douée de raison (humain) ou non douée de raison (animaux, objets).",
+example:{ar:"مَنْ هٰذَا ؟ هٰذَا طَالِبٌ",fr:"Qui est-ce ? C'est un étudiant (douée de raison : مَنْ)",ar2:"مَا هٰذَا ؟ هٰذَا كِتَابٌ",fr2:"Qu'est-ce que c'est ? C'est un livre (non douée de raison : مَا)"},
+verse:{ar:"مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ",fr:"Qui peut intercéder auprès de Lui sans Sa permission ?",ref:"Sourate al-Baqara (2:255)"},
+q:{question:"Pour interroger sur une chose non douée de raison (un objet), quel pronom utilise-t-on ?",options:["مَنْ","مَا","أَيْنَ","مَتَى"],correct:1}},
+
+{n:3,title:"La hamza d'interrogation",ar:"هَمْزَةُ الِاسْتِفْهَامِ",
+summary:"Particule utilisée au début des phrases pour leur donner un sens interrogatif. La réponse est introduite par « oui » (نَعَمْ), « non » (لَا) ou par d'autres particules comme بَلْ.",
+example:{ar:"أَهٰذَا بَيْتٌ ؟ نَعَمْ، هٰذَا بَيْتٌ",fr:"Est-ce que c'est une maison ? Oui, c'est une maison.",ar2:"أَهٰذَا سَرِيرٌ ؟ لَا، هٰذَا كُرْسِيٌّ",fr2:"Est-ce que c'est un lit ? Non, c'est une chaise."},
+verse:{ar:"أَإِلَهٌ مَّعَ اللَّهِ بَلْ أَكْثَرُهُمْ لَا يَعْلَمُونَ",fr:"Y a-t-il donc une divinité avec Allah ? Non, mais la plupart d'entre eux ne savent pas.",ref:"Sourate an-Naml (27:61)"},
+q:{question:"Comment répond-on « non » à une question introduite par la hamza d'interrogation ?",options:["نَعَمْ","بَلْ","لَا","مَا"],correct:2}},
+
+{n:4,title:"L'article défini (ال)",ar:"أَدَاةُ التَّعْرِيفِ",
+summary:"Particule qui s'ajoute au début des noms pour leur donner un sens défini. Lorsqu'on ajoute ال au début d'un nom, il perd le « tanwin » (voyelle double) de sa terminaison.",
+example:{ar:"بَيْتٌ (indéfini) → الْبَيْتُ (défini)",fr:"Une maison → La maison",ar2:"الْبَيْتُ الْجَدِيدُ",fr2:"La maison neuve"},
+verse:{ar:"وَهٰذَا كِتَابٌ أَنزَلْنَاهُ مُبَارَكٌ فَاتَّبِعُوهُ",fr:"Et voici un Livre (le Coran) béni que Nous avons fait descendre, suivez-le donc...",ref:"Sourate al-An'aam (6:155)"},
+q:{question:"Qu'arrive-t-il au tanwin d'un nom lorsqu'on lui ajoute l'article ال ?",options:["Il est doublé","Il devient une hamza","Il disparaît","Il ne change pas"],correct:2}},
+
+{n:5,title:"Les lettres lunaires et solaires",ar:"الْحُرُوفُ الْقَمَرِيَّةُ وَالشَّمْسِيَّةُ",
+summary:"L'article défini se prononce différemment selon que la lettre qui débute le mot est « lunaire » (comme ق de قَمَر) ou « solaire » (comme ش de شَمْس). Avec une lettre solaire, on double la première lettre du mot sans prononcer le ل.",
+example:{ar:"الْقَمَرُ (lunaire — on prononce le ل)",fr:"La lune",ar2:"الشَّمْسُ (solaire — on double la 1ère lettre)",fr2:"Le soleil"},
+verse:{ar:"إِذَا الشَّمْسُ كُوِّرَتْ وَإِذَا النُّجُومُ انكَدَرَتْ",fr:"Quand le soleil sera obscurci et que les étoiles deviendront ternes",ref:"Sourate at-Takwir (81:1-2)"},
+q:{question:"Que se passe-t-il quand l'article ال précède une lettre solaire comme ش ?",options:["On prononce normalement le ل","On double la première lettre du mot","On supprime le mot","Rien de spécial"],correct:1}},
+
+{n:6,title:"La phrase nominale (1)",ar:"الْجُمْلَةُ الِاسْمِيَّةُ",
+summary:"La phrase nominale est celle qui commence par un nom. Ce nom est appelé مُبْتَدَأ (sujet). Elle comporte au moins deux termes : le مُبْتَدَأ et le خَبَر qui informe à son sujet. En arabe on n'a pas besoin du verbe « être ».",
+example:{ar:"الْقَلَمُ مَكْسُورٌ",fr:"Le crayon est cassé (مُبْتَدَأ + خَبَر)",ar2:"الْبَابُ مَفْتُوحٌ",fr2:"La porte est ouverte"},
+verse:{ar:"وَاللَّهُ عَلِيمٌ حَكِيمٌ",fr:"...et Allah est Omniscient et Sage",ref:"Sourate an-Nour (24:18)"},
+q:{question:"Comment s'appelle le sujet de la phrase nominale, placé en général à son début ?",options:["خَبَر","مُبْتَدَأ","نَعْت","مُضَاف"],correct:1}},
+
+{n:7,title:"La phrase nominale (2) — la déclinaison",ar:"الْجُمْلَةُ الِاسْمِيَّةُ",
+summary:"Les noms dont la fonction est مُبْتَدَأ ou خَبَر sont toujours au cas de déclinaison « régulier » (الرَّفْع). Leur terminaison est la « dhamma » ( ُ ), sauf exception. Le genre du خَبَر est le même que celui du مُبْتَدَأ.",
+example:{ar:"الطَّالِبُ جَالِسٌ",fr:"L'étudiant est assis (masc. + masc.)",ar2:"الطَّالِبَةُ جَالِسَةٌ",fr2:"L'étudiante est assise (fém. + fém.)"},
+verse:{ar:"وَاللَّهُ رَؤُوفٌ بِالْعِبَادِ",fr:"...Et Allah est Compatissant envers Ses serviteurs",ref:"Sourate al-Baqara (2:207)"},
+q:{question:"Quelle voyelle marque le cas de déclinaison « régulier » (الرَّفْع) ?",options:["la fatha ( َ )","la kasra ( ِ )","la dhamma ( ُ )","le soukoun ( ْ )"],correct:2}},
+
+{n:8,title:"Les prépositions (1)",ar:"حُرُوفُ الْجَرِّ",
+summary:"Ensemble de particules qui précèdent les noms et impliquent leur passage au cas « indirect » (الجَرّ). Les noms précédés de prépositions ont pour terminaison la voyelle « kasra » qui marque ce cas.",
+example:{ar:"فِي الْبَيْتِ",fr:"Dans la maison",ar2:"عَلَى الْمَكْتَبِ",fr2:"Sur le bureau"},
+verse:{ar:"إِنَّ اللَّهَ لَا يَخْفَىٰ عَلَيْهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ",fr:"Rien, vraiment, ne se cache d'Allah de ce qui existe sur la terre ou dans le ciel",ref:"Sourate Al 'Imran (3:5)"},
+q:{question:"Quelle voyelle prend un nom précédé d'une préposition (cas indirect) ?",options:["la dhamma","la fatha","la kasra","le tanwin"],correct:2}},
+
+{n:9,title:"Le masculin et le féminin",ar:"الْمُذَكَّرُ وَالْمُؤَنَّثُ",
+summary:"En arabe tous les noms ont un genre : masculin ou féminin. La plupart des noms féminins se reconnaissent aux terminaisons ة، ى ou اء. Certains noms féminins n'ont cependant pas de marque distinctive (ex: شَمْسٌ, يَدٌ).",
+example:{ar:"هٰذِهِ سَيَّارَةٌ",fr:"C'est une voiture — nom féminin marqué par ة",ar2:"تِلْكَ مَدْرَسَةٌ",fr2:"C'est une école (là-bas)"},
+verse:{ar:"هٰذِهِ نَاقَةُ اللَّهِ لَكُمْ آيَةً فَذَرُوهَا تَأْكُلْ فِي أَرْضِ اللَّهِ",fr:"...voici la chamelle d'Allah, un signe pour vous. Laissez-la donc manger sur la terre d'Allah...",ref:"Sourate al-A'raaf (7:73)"},
+q:{question:"Quelles terminaisons indiquent généralement qu'un nom est féminin ?",options:["ون، ين","ة، ى، اء","ان، تان","ات، ين"],correct:1}},
+
+{n:10,title:"Les pronoms personnels isolés (1)",ar:"الضَّمَائِرُ المُنْفَصِلَةُ",
+summary:"Les pronoms personnels (الضَّمَائِر) remplacent les noms pour éviter la répétition. Ils s'écrivent de manière isolée (مُنْفَصِل) lorsque leur fonction est مُبْتَدَأ (sujet de la phrase nominale).",
+example:{ar:"هُوَ طَالِبٌ",fr:"Il est étudiant (3ème pers.)",ar2:"أَنَا طَالِبٌ / أَنَا طَالِبَةٌ",fr2:"Je suis étudiant / étudiante (1ère pers.)"},
+verse:{ar:"قُل لَّن يُصِيبَنَا إِلَّا مَا كَتَبَ اللَّهُ لَنَا هُوَ مَوْلَانَا",fr:"Dis : « Rien ne nous atteindra, en dehors de ce qu'Allah a prescrit pour nous. Il est notre Protecteur »",ref:"Sourate At-Tawba (9:51)"},
+q:{question:"Quand utilise-t-on un pronom personnel isolé (مُنْفَصِل) ?",options:["Quand il est annexé à un nom","Quand sa fonction est مُبْتَدَأ (sujet)","Toujours, sans exception","Jamais en phrase nominale"],correct:1}},
+
+{n:11,title:"L'interdit de tanwin (1)",ar:"الْمَمْنُوعُ مِنَ الصَّرْفِ",
+summary:"Certains noms n'acceptent pas de voyelle double (tanwin) à leur terminaison. Les noms propres sont « interdits de tanwin » lorsque : leur sens est féminin, ils terminent par ة, sont d'origine non-arabe, terminent par ان، ou ont la forme أَفْعَلُ.",
+example:{ar:"مَرْيَمُ، زَيْنَبُ",fr:"Marie, Zaynab (sens féminin — pas de tanwin)",ar2:"إِبْرَاهِيمُ",fr2:"Abraham (origine non-arabe — pas de tanwin)"},
+verse:{ar:"فَعَصَىٰ فِرْعَوْنُ الرَّسُولَ فَأَخَذْنَاهُ أَخْذًا وَبِيلًا",fr:"Pharaon désobéit alors au Messager. Nous le saisîmes donc rudement.",ref:"Sourate al-Mouzammil (73:16)"},
+q:{question:"Lequel de ces cas rend un nom propre « interdit de tanwin » ?",options:["Il commence par une voyelle","Il est d'origine non-arabe","Il a 3 lettres","Il est suivi d'un adjectif"],correct:1}},
+
+{n:12,title:"La particule d'interpellation",ar:"حَرْفُ النِّدَاءِ",
+summary:"Particule (يَا) utilisée pour attirer l'attention d'une personne, pour l'interpeller. Si le nom qui suit يَا est un nom propre ou un nom commun désignant une personne spécifique, il perd le tanwin de sa terminaison.",
+example:{ar:"خَالِدٌ → يَا خَالِدُ",fr:"Khalid (prénom) → Hé ! Khalid !",ar2:"شَيْخٌ → يَا شَيْخُ",fr2:"Un shaykh (indéfini) → Ô shaykh !"},
+verse:{ar:"قَالُوا يَا صَالِحُ قَد كُنتَ فِينَا مَرْجُوًّا قَبْلَ هَذَا",fr:"Ils dirent : « ô Salih, tu étais auparavant un espoir pour nous... »",ref:"Sourate Houd (11:62)"},
+q:{question:"Que devient la terminaison d'un nom interpellé par يَا ?",options:["Elle reste indéfinie avec tanwin","Elle perd le tanwin","Elle devient un pluriel","Elle prend la kasra"],correct:1}},
+
+{n:13,title:"L'annexion",ar:"الْإِضَافَةُ",
+summary:"L'annexion consiste à ajouter un nom à un autre nom pour indiquer la possession ou la relation. L'annexé (مُضَاف) précède toujours l'annexant (مُضَاف إِلَيْه) : 1) l'annexé ne commence jamais par ال, 2) il ne termine jamais par tanwin, 3) l'annexant est toujours au cas indirect (kasra).",
+example:{ar:"كِتَابُ حَامِدٍ",fr:"Le livre de Hamid",ar2:"مِفْتَاحُ الْبَابِ",fr2:"La clé de la porte"},
+verse:{ar:"كَذَّبَتْ قَبْلَهُمْ قَوْمُ نُوحٍ وَأَصْحَابُ الرَّسِّ وَثَمُودُ",fr:"Avant eux, le peuple de Noé, les gens d'Ar-Rass et les Tamud crièrent au mensonge.",ref:"Sourate Qaf (50:12)"},
+q:{question:"Dans une annexion, quel cas de déclinaison prend toujours l'annexant (مُضَاف إِلَيْه) ?",options:["Le cas régulier (dhamma)","Le cas direct (fatha)","Le cas indirect (kasra)","Il n'est jamais décliné"],correct:2}},
+
+{n:14,title:"Le déclinable et l'invariable",ar:"الْمُعْرَبُ وَالْمَبْنِيُّ",
+summary:"Les mots déclinables sont ceux dont la terminaison change selon la déclinaison. Les autres sont invariables : toutes les particules, les pronoms (interrogatifs, démonstratifs, personnels...), et les verbes (sauf à l'inaccompli).",
+example:{ar:"مَنْ ذٰلِكَ ؟",fr:"Qui est-ce (là-bas) ? — مَنْ et ذٰلِكَ sont des pronoms invariables",ar2:"ذٰلِكَ تَخْفِيفٌ مِّن رَّبِّكُمْ",fr2:"Ceci est un allégement de la part de votre Seigneur"},
+verse:{ar:"إِنَّ الْإِنسَانَ لِرَبِّهِ لَكَنُودٌ",fr:"L'homme est, certes, ingrat envers son Seigneur",ref:"Sourate al-'Adiyaat (100:6)"},
+q:{question:"Lesquels de ces éléments sont TOUJOURS invariables ?",options:["Tous les noms","Toutes les particules","Tous les verbes sans exception","Tous les adjectifs"],correct:1}},
+
+{n:15,title:"La hamza de liaison",ar:"هَمْزَةُ الْوَصْلِ",
+summary:"Lorsqu'un mot débute par la lettre alif (ا) sans hamza, on ne prononce une voyelle que lorsque c'est nécessaire : en début de phrase ou après une pause. En milieu de phrase, on fait la liaison avec la voyelle précédente.",
+example:{ar:"اِسْمِي زَيْدٌ (début de phrase — on prononce)",fr:"Mon nom est Zayd",ar2:"مَا اسْمُكَ ؟ (milieu de phrase — liaison)",fr2:"Quel est ton nom ?"},
+verse:{ar:"الْحَجُّ أَشْهُرٌ مَّعْلُومَاتٌ",fr:"Le pèlerinage a lieu dans des mois connus...",ref:"Sourate al-Baqara (2:197)"},
+q:{question:"Quand prononce-t-on une voyelle sur la hamza de liaison (alif initial sans hamza) ?",options:["Toujours, dans tous les cas","Jamais","Seulement en début de phrase ou après une pause","Seulement avec les noms féminins"],correct:2}},
+
+{n:16,title:"Le substitut",ar:"الْبَدَلُ",
+summary:"Lorsqu'un nom commence par ال et fait suite à un pronom démonstratif, il devient son « substitut » (بَدَل). Le substitut et le pronom démonstratif forment un ensemble désignant la même chose ; l'un des deux peut être supprimé sans changer le sens.",
+example:{ar:"هٰذَا الْكِتَابُ جَدِيدٌ",fr:"Ce livre est neuf (الْكِتَابُ = بَدَل de هٰذَا)",ar2:"هٰذَا جَدِيدٌ / الْكِتَابُ جَدِيدٌ",fr2:"Ceci est neuf / Le livre est neuf (même sens)"},
+verse:{ar:"وَيَقُولُونَ مَتَىٰ هٰذَا الْوَعْدُ إِن كُنتُمْ صَادِقِينَ",fr:"Et ils disent : « A quand cette promesse si vous êtes véridiques ? »",ref:"Sourate al-Moulk (67:25)"},
+q:{question:"Qu'est-ce que le بَدَل (substitut) ?",options:["Le verbe de la phrase","Un nom défini qui suit un pronom démonstratif et désigne la même chose","Une préposition","Un pluriel irrégulier"],correct:1}},
+
+{n:17,title:"Les prépositions (2) — بِ et لِ",ar:"حُرُوفُ الجَرِّ",
+summary:"Certaines prépositions sont formées d'une seule lettre : بِ (al-bâ') et لِ (al-lâm). Elles ne peuvent jamais être écrites isolément, on les attache toujours au nom qu'elles précèdent.",
+example:{ar:"أَنَا طَالِبٌ بِالْجَامِعَةِ",fr:"Je suis étudiant à l'université (بِ = lieu)",ar2:"الْقَلَمُ لِحَامِدٍ",fr2:"Le crayon est à Hamid (لِ = possession)"},
+verse:{ar:"إِنَّ الشَّيْطَانَ لِلْإِنسَانِ عَدُوٌّ مُّبِينٌ",fr:"...le Diable est certainement pour l'homme un ennemi déclaré.",ref:"Sourate Youssouf (12:5)"},
+q:{question:"Comment écrit-on les prépositions بِ et لِ formées d'une seule lettre ?",options:["Toujours isolées","Toujours attachées au nom qui suit","Seulement avec les noms propres","Avec un tanwin"],correct:1}},
+
+{n:18,title:"Le nom qui termine par alif",ar:"الِاسْمُ المَقْصُورُ",
+summary:"La lettre « alif » (ا ou ى) n'est jamais associée à une voyelle, même si elle termine un mot déclinable. Si le mot est déclinable, on considère que la marque de déclinaison est « sous-entendue » (مُقَدَّرَة) car elle n'apparaît pas visuellement.",
+example:{ar:"هٰذِهِ مُسْتَشْفًى",fr:"C'est un hôpital (la marque du cas régulier est sous-entendue)",ar2:"حَامِدٌ مِنْ فَرَنْسَا",fr2:"Hamid (vient) de France (cas indirect sous-entendu)"},
+verse:{ar:"قَالَ أَلْقِهَا يَا مُوسَىٰ فَأَلْقَاهَا فَإِذَا هِيَ حَيَّةٌ تَسْعَىٰ",fr:"[Allah] dit : « Jette-le, ô Moïse ». Il le jeta : et le voici un serpent qui rampait.",ref:"Sourate Ta-Ha (20:19-20)"},
+q:{question:"Que se passe-t-il avec la marque de déclinaison d'un nom terminant par alif (ا ou ى) ?",options:["Elle est doublée","Elle disparaît totalement du sens","Elle est sous-entendue (invisible mais présente)","Elle devient un tanwin"],correct:2}},
+
+{n:19,title:"Le qualificatif et le qualifié (1)",ar:"النَّعْتُ وَالمَنْعُوتُ",
+summary:"Le qualificatif (نَعْت) est un nom qui apporte un détail sur un autre nom (مَنْعُوت) et permet de l'identifier. Il est toujours placé après le nom qu'il qualifie et s'accorde avec lui en genre.",
+example:{ar:"هٰذَا طَالِبٌ جَدِيدٌ",fr:"C'est un nouvel étudiant (masc. + masc.)",ar2:"هٰذِهِ طَالِبَةٌ جَدِيدَةٌ",fr2:"C'est une nouvelle étudiante (fém. + fém.)"},
+verse:{ar:"وَلَعَبْدٌ مُّؤْمِنٌ خَيْرٌ مِّن مُّشْرِكٍ وَلَوْ أَعْجَبَكُمْ",fr:"...et certes, un esclave croyant vaut mieux qu'un associateur même s'il vous enchante...",ref:"Sourate Al-Baqara (2:221)"},
+q:{question:"Avec quoi le qualificatif (نَعْت) doit-il s'accorder en genre ?",options:["Le verbe de la phrase","Le nom qu'il qualifie (مَنْعُوت)","La préposition précédente","Il ne s'accorde jamais"],correct:1}},
+
+{n:20,title:"Le qualificatif et le qualifié (2)",ar:"النَّعْتُ وَالمَنْعُوتُ",
+summary:"Le qualificatif s'accorde aussi avec le nom qualifié en définition et en déclinaison : noms indéfinis au cas régulier, noms définis au cas indirect doivent avoir un qualificatif assorti du même statut.",
+example:{ar:"الدَّرْسُ الْجَدِيدُ سَهْلٌ",fr:"La nouvelle leçon est facile (défini + défini)",ar2:"هٰذَا دَرْسٌ جَدِيدٌ",fr2:"C'est une nouvelle leçon (indéfini + indéfini)"},
+verse:{ar:"وَالْكِتَابِ الْمُبِينِ إِنَّا جَعَلْنَاهُ قُرْآنًا عَرَبِيًّا",fr:"Par le Livre explicite ! Nous en avons fait un Coran arabe...",ref:"Sourate az-Zoukhouf (43:2-3)"},
+q:{question:"Si le nom qualifié est défini (avec ال), comment doit être son qualificatif ?",options:["Indéfini","Également défini (avec ال)","Au pluriel obligatoirement","Sans rapport de définition"],correct:1}},
+
+{n:21,title:"Les compléments de temps et de lieu",ar:"ظُرُوفُ الزَّمَانِ وَالمَكَانِ",
+summary:"Le complément de temps (ظَرْف زَمَان) ou de lieu (ظَرْف مَكَان) est un nom qui indique le moment ou le lieu d'une action. La plupart sont annexés à un autre nom qui apporte une précision.",
+example:{ar:"السَّيَّارَةُ أَمَامَ الْبَيْتِ",fr:"La voiture est devant la maison (complément de lieu)",ar2:"الدَّرْسُ بَعْدَ الصَّلَاةِ",fr2:"Le cours est après la prière (complément de temps)"},
+verse:{ar:"فَاصْبِرْ عَلَىٰ مَا يَقُولُونَ وَسَبِّحْ بِحَمْدِ رَبِّكَ قَبْلَ طُلُوعِ الشَّمْسِ وَقَبْلَ غُرُوبِهَا",fr:"Supporte patiemment ce qu'ils disent et célèbre Sa louange, avant le lever du soleil, avant son coucher...",ref:"Sourate Ta-ha (20:130)"},
+q:{question:"Qu'indique un ظَرْف مَكَان (complément de lieu) comme أَمَامَ (devant) ?",options:["Le temps d'une action","Le lieu d'une action","La possession","Le genre d'un nom"],correct:1}},
+
+{n:22,title:"Les pronoms relatifs",ar:"الْأَسْمَاءُ الْمَوْصُولَةُ",
+summary:"Le pronom relatif (الَّذِي masc., الَّتِي fém.) relie un nom à une phrase qui le qualifie et permet de l'identifier. Les pronoms relatifs sont du même genre que les noms qu'ils représentent et sont placés après eux.",
+example:{ar:"الطَّالِبُ الَّذِي أَمَامَ الْمَكْتَبَةِ مِنَ الْيَمَنِ",fr:"L'étudiant qui est devant la librairie est du Yemen",ar2:"الطَّالِبَةُ الَّتِي عَمُّهَا طَبِيبٌ مُجْتَهِدَةٌ",fr2:"L'étudiante dont l'oncle est médecin est studieuse"},
+verse:{ar:"وَهُوَ الَّذِي فِي السَّمَاءِ إِلٰهٌ وَفِي الْأَرْضِ إِلٰهٌ",fr:"...c'est Lui qui est Dieu dans le ciel et Dieu sur terre...",ref:"Sourate Az-Zoukhrouf (43:84)"},
+q:{question:"Quel pronom relatif utilise-t-on pour un nom féminin ?",options:["الَّذِي","الَّتِي","مَنْ","مَا"],correct:1}},
+
+{n:23,title:"Les pronoms personnels suffixes (1)",ar:"الضَّمَائِرُ المُتَّصِلَةُ",
+summary:"Lorsque les pronoms personnels remplacent des noms au cas indirect, ils changent de forme et s'attachent à la fin du mot qui les précède (ـه، ـك، ـي...).",
+example:{ar:"قَلَمُهُ",fr:"Son crayon (لَهُ ـه)",ar2:"قَلَمِي",fr2:"Mon crayon (لِي ـي)"},
+verse:{ar:"قَالُوا هٰذَا مَا وَعَدَنَا اللَّهُ وَرَسُولُهُ وَصَدَقَ اللَّهُ وَرَسُولُهُ",fr:"...ils dirent : « Voilà ce qu'Allah et Son messager nous avaient promis... »",ref:"Sourate al-Ahzaab (33:22)"},
+q:{question:"Comment les pronoms personnels suffixes s'écrivent-ils ?",options:["Isolés, séparés du mot précédent","Attachés à la fin du mot qui les précède","Toujours avant le nom","Avec un tanwin"],correct:1}},
+
+{n:24,title:"Exprimer la possession (عِنْدَ + pronom)",ar:"عِنْدَ + ضَمِير",
+summary:"Pour exprimer la possession en arabe, on utilise le nom عِنْدَ annexé à un pronom personnel suffixe, suivi de l'objet possédé. Pour nier la possession, on ajoute مَا avant عِنْدَ.",
+example:{ar:"عِنْدِي قَلَمٌ",fr:"J'ai un crayon (littéralement : un crayon / auprès de moi)",ar2:"مَا عِنْدِي قَلَمٌ",fr2:"Je n'ai pas de crayon"},
+verse:{ar:"قُل لَّا أَقُولُ لَكُمْ عِندِي خَزَائِنُ اللَّهِ",fr:"Dis-[leur] : « Je ne vous dis pas que je détiens les trésors d'Allah... »",ref:"Sourate al-An'aam (6:50)"},
+q:{question:"Comment exprime-t-on la possession « j'ai un crayon » en arabe ?",options:["لِي قَلَمٌ فَقَط","عِنْدِي قَلَمٌ","قَلَمِي هُنَا","أَنَا قَلَمٌ"],correct:1}},
+
+{n:25,title:"Prépositions + pronom personnel",ar:"حُرُوفُ الجَرِّ + ضَمِير",
+summary:"Les prépositions subissent parfois des modifications lorsqu'elles précèdent les pronoms personnels (عَلَى+كَ=عَلَيْكَ، إِلَى+هَا=إِلَيْهَا، لِ+هُ=لَهُ). Pour la famille, on utilise لِ et non عِنْدَ.",
+example:{ar:"السَّلَامُ عَلَيْكَ",fr:"Que la paix soit sur toi !",ar2:"لَهُ أُخْتٌ كَبِيرَةٌ",fr2:"Il a une grande sœur (à lui)"},
+verse:{ar:"إِن امْرُؤٌ هَلَكَ لَيْسَ لَهُ وَلَدٌ وَلَهُ أُخْتٌ فَلَهَا نِصْفُ مَا تَرَكَ",fr:"...si quelqu'un meurt sans enfant, mais a une sœur, à celle-ci revient la moitié de ce qu'il laisse...",ref:"Sourate an-Nisaa' (4:176)"},
+q:{question:"Pour exprimer la possession concernant la famille (« j'ai un oncle »), quelle particule utilise-t-on plutôt que عِنْدَ ?",options:["فِي","مِنْ","لِ","عَلَى"],correct:2}},
+
+{n:26,title:"Le verbe à l'accompli (1)",ar:"الْفِعْلُ الْمَاضِي",
+summary:"L'accompli (الْمَاضِي) décrit une action terminée au moment où l'on s'exprime. On le construit en ajoutant à la racine du verbe un pronom personnel suffixe. Notez que ذَهَبَ (il est parti) et ذَهَبَتْ (elle est partie) n'ont pas de pronom apparent.",
+example:{ar:"ذَهَبَ (il est parti)",fr:"3ème pers. masc. — pas de pronom visible",ar2:"ذَهَبْتَ (tu es parti, masc.)",fr2:"2ème pers. masc. — suffixe ـتَ"},
+verse:{ar:"قَالُوا مَن فَعَلَ هَذَا بِآلِهَتِنَا إِنَّهُ لَمِنَ الظَّالِمِينَ",fr:"Ils dirent : « Qui a fait cela à nos divinités ? Il est certes parmi les injustes ».",ref:"Sourate al-Anbiya (21:59)"},
+q:{question:"Qu'est-ce que l'accompli (الْمَاضِي) en arabe ?",options:["Une action future","Une action en cours","Une action terminée au moment où l'on parle","Un ordre"],correct:2}},
+
+{n:27,title:"La succession de deux soukoun",ar:"اِلتِقَاءُ السَّاكِنَيْنِ",
+summary:"En arabe on ne peut pas prononcer successivement deux lettres sans voyelle (soukoun). Lorsque ce cas se présente, la première lettre est associée à une voyelle pour permettre la prononciation.",
+example:{ar:"زَيْدٌ مِنَ الْمَوْصِلِ",fr:"Zayd est de Mossoul (مِنْ devient مِنَ pour éviter 2 soukoun)",ar2:"خَرَجَتِ الْمُدِيرَةُ",fr2:"La directrice est sortie (ت reçoit une voyelle)"},
+verse:{ar:"الْحَقُّ مِن رَّبِّكَ فَلَا تَكُونَنَّ مِنَ الْمُمْتَرِينَ",fr:"La vérité vient de ton Seigneur. Ne sois donc pas de ceux qui doutent.",ref:"Sourate al-Baqara (2:147)"},
+q:{question:"Pourquoi associe-t-on une voyelle à la première lettre lors d'une succession de deux soukoun ?",options:["Par tradition esthétique uniquement","Car on ne peut pas prononcer deux lettres sans voyelle d'affilée","Pour marquer le pluriel","Pour marquer le féminin"],correct:1}},
+
+{n:28,title:"Le pluriel régulier (intact)",ar:"الجَمْعُ السَّالِمُ",
+summary:"Le pluriel régulier est construit en ajoutant une terminaison sans modifier la forme du singulier. Masculin : on ajoute ـونَ. Féminin : on ajoute ـات (la ة du singulier disparaît).",
+example:{ar:"مُسْلِمٌ → مُسْلِمُونَ",fr:"Un musulman → des musulmans",ar2:"مُسْلِمَةٌ → مُسْلِمَاتٌ",fr2:"Une musulmane → des musulmanes"},
+verse:{ar:"وَمَن يُسْلِمْ وَجْهَهُ إِلَى اللَّهِ وَهُوَ مُحْسِنٌ",fr:"Et quiconque soumet son être à Allah, tout en étant bienfaisant...",ref:"Sourate Luqman (31:22)"},
+q:{question:"Quelle terminaison ajoute-t-on au pluriel régulier MASCULIN ?",options:["ـات","ـونَ","ـِين فقط","ـة"],correct:1}},
+
+{n:29,title:"Les pronoms démonstratifs pluriels",ar:"أَسْمَاءُ الْإِشَارَةِ لِلْجَمْعِ",
+summary:"Au pluriel, on utilise les mêmes pronoms démonstratifs pour le masculin et le féminin. S'il s'agit d'un nom doué de raison : هَؤُلَاءِ (proche) et أُولٰئِكَ (éloigné).",
+example:{ar:"هَؤُلَاءِ مُدَرِّسُونَ",fr:"Ce sont des enseignants (ici)",ar2:"أُولٰئِكَ طُلَّابٌ",fr2:"Ce sont des étudiants (là-bas)"},
+verse:{ar:"وَيَقُولُونَ هَؤُلَاءِ شُفَعَاؤُنَا عِندَ اللَّهِ",fr:"...et disent : « Ceux-ci sont nos intercesseurs auprès d'Allah »...",ref:"Sourate Younous (10:18)"},
+q:{question:"Quel pronom démonstratif utilise-t-on pour un groupe proche de personnes (doué de raison) ?",options:["هٰذَا","هَؤُلَاءِ","تِلْكَ","ذٰلِكَ"],correct:1}},
+
+{n:30,title:"Le pluriel irrégulier (brisé)",ar:"جَمْعُ التَّكْسِيرِ",
+summary:"Le pluriel irrégulier est construit en modifiant la forme du singulier (sans ajouter de terminaison fixe) : en changeant les voyelles, en supprimant ou en ajoutant des lettres.",
+example:{ar:"كِتَابٌ → كُتُبٌ",fr:"Un livre → des livres (suppression d'une lettre)",ar2:"ضَيْفٌ → ضُيُوفٌ",fr2:"Un invité → des invités (ajout d'une lettre)"},
+verse:{ar:"وَجَاءَ مِنْ أَقْصَى الْمَدِينَةِ رَجُلٌ يَسْعَىٰ",fr:"Et du bout de la ville, un homme vint en toute hâte...",ref:"Sourate Ya-sin (36:20)"},
+q:{question:"Comment se forme le pluriel irrégulier (« brisé ») ?",options:["En ajoutant toujours ـونَ","En ajoutant toujours ـات","En modifiant la forme interne du singulier","En répétant le mot deux fois"],correct:2}},
+
+{n:31,title:"Les pronoms personnels isolés (2)",ar:"الضَّمَائِرُ المُنْفَصِلَةُ",
+summary:"Les pronoms personnels isolés au pluriel : هُمْ (ils), هُنَّ (elles), أَنْتُمْ (vous masc.), أَنْتُنَّ (vous fém.), نَحْنُ (nous).",
+example:{ar:"هُمْ طُلَّابٌ",fr:"Ils sont étudiants",ar2:"نَحْنُ طُلَّابٌ / طَالِبَاتٌ",fr2:"Nous sommes étudiants / étudiantes"},
+verse:{ar:"يَا أَيُّهَا النَّاسُ أَنتُمُ الْفُقَرَاءُ إِلَى اللَّهِ وَاللَّهُ هُوَ الْغَنِيُّ",fr:"Ô hommes, vous êtes les indigents ayant besoin d'Allah, et c'est Allah, Lui qui se dispense de tout...",ref:"Sourate Faatir (35:15)"},
+q:{question:"Quel est le pronom personnel isolé pour « nous » ?",options:["هُمْ","أَنْتُمْ","نَحْنُ","هُنَّ"],correct:2}},
+
+{n:32,title:"Le verbe à l'accompli (2) — pluriel",ar:"الْفِعْلُ الْمَاضِي",
+summary:"Conjugaison du verbe à l'accompli au pluriel : ذَهَبُوا (ils sont partis), ذَهَبْنَ (elles sont parties), ذَهَبْتُمْ (vous êtes partis), ذَهَبْنَا (nous sommes partis).",
+example:{ar:"ذَهَبُوا",fr:"Ils sont partis (3ème pers. masc. plur.)",ar2:"ذَهَبْنَا",fr2:"Nous sommes partis (1ère pers. plur.)"},
+verse:{ar:"قَالَ هَلْ عَلِمْتُم مَّا فَعَلْتُم بِيُوسُفَ وَأَخِيهِ إِذْ أَنتُمْ جَاهِلُونَ",fr:"Il dit : « Savez-vous ce que vous avez fait de Joseph et de son frère... »",ref:"Sourate Yousouf (12:89)"},
+q:{question:"Quel est le suffixe de l'accompli pour « ils » (3ème pers. masc. plur.) ?",options:["ـتُمْ","ـنَا","ـُوا","ـنَ"],correct:2}},
+
+{n:33,title:"Les pronoms personnels suffixes (2) — pluriel",ar:"الضَّمَائِرُ المُتَّصِلَةُ",
+summary:"Les pronoms personnels suffixes au pluriel : ـهُمْ (leur, masc.), ـهُنَّ (leur, fém.), ـكُمْ (votre, masc.), ـكُنَّ (votre, fém.), ـنَا (notre).",
+example:{ar:"أَقْلَامُهُمْ",fr:"Leurs crayons (masc.)",ar2:"أَقْلَامُنَا",fr2:"Nos crayons"},
+verse:{ar:"يَا أَيُّهَا النَّبِيُّ قُل لِّأَزْوَاجِكَ وَبَنَاتِكَ وَنِسَاءِ الْمُؤْمِنِينَ يُدْنِينَ عَلَيْهِنَّ مِن جَلَابِيبِهِنَّ",fr:"Ô Prophète ! Dis à tes épouses, à tes filles, et aux femmes des croyants, de ramener sur elles leurs grands voiles...",ref:"Sourate al-Ahzaab (33:59)"},
+q:{question:"Quel pronom suffixe correspond à « leur » au masculin pluriel ?",options:["ـهُنَّ","ـكُمْ","ـهُمْ","ـنَا"],correct:2}},
+
+{n:34,title:"Pronoms démonstratifs et pluriels des non-doués de raison",ar:"أَسْمَاءُ الْإِشَارَةِ لِجَمْعِ غَيْرِ الْعَاقِلِ",
+summary:"Lorsque le nom désigné est au pluriel ET non-doué de raison (objets, animaux), on utilise des pronoms démonstratifs FÉMININS SINGULIERS : هٰذِهِ (proche) et تِلْكَ (éloigné), même si le nom est masculin.",
+example:{ar:"هٰذِهِ كُتُبٌ",fr:"Ce sont des livres (ici) — pronom fém. singulier",ar2:"تِلْكَ بُيُوتٌ",fr2:"Ce sont des maisons (là-bas)"},
+verse:{ar:"تِلْكَ آيَاتُ اللَّهِ نَتْلُوهَا عَلَيْكَ بِالْحَقِّ",fr:"Voilà les versets d'Allah, que Nous te récitons avec la vérité...",ref:"Sourate al-Baqara (2:252)"},
+q:{question:"Quel pronom démonstratif utilise-t-on pour un pluriel d'objets non-doués de raison (proche) ?",options:["هَؤُلَاءِ","هٰذِهِ (féminin singulier)","هُمْ","هٰذَانِ"],correct:1}},
+
+{n:35,title:"La phrase nominale (3) — accord du khabar",ar:"الْجُمْلَةُ الِاسْمِيَّةُ",
+summary:"L'information (خَبَر) s'accorde avec son sujet (مُبْتَدَأ) selon la quantité. Si le sujet est le pluriel d'un non-doué de raison, le خَبَر s'accorde généralement au FÉMININ SINGULIER.",
+example:{ar:"الْمُدَرِّسُونَ جُدُدٌ",fr:"Les professeurs (humains) sont nouveaux — pluriel normal",ar2:"الْكُتُبُ جَدِيدَةٌ",fr2:"Les livres sont neufs — accord féminin singulier !"},
+verse:{ar:"إِنَّمَا الْمُؤْمِنُونَ إِخْوَةٌ فَأَصْلِحُوا بَيْنَ أَخَوَيْكُمْ",fr:"Les croyants ne sont que des frères. Etablissez la concorde entre vos frères...",ref:"Sourate al-Houjouraat (49:10)"},
+q:{question:"Comment s'accorde le خَبَر quand le sujet est un pluriel d'objets non-doués de raison ?",options:["Au pluriel masculin","Au féminin singulier","Au duel","Il ne s'accorde pas"],correct:1}},
+
+{n:36,title:"Le qualificatif et le qualifié (3)",ar:"النَّعْتُ وَالمَنْعُوتُ",
+summary:"Le qualificatif s'accorde aussi en fonction de la quantité. Lorsque le nom qualifié est un pluriel non-doué de raison, son qualificatif est généralement accordé au FÉMININ SINGULIER (comme pour le خَبَر).",
+example:{ar:"هَؤُلَاءِ طُلَّابٌ جُدُدٌ",fr:"Ce sont de nouveaux étudiants (pluriel normal, doué de raison)",ar2:"هٰذِهِ كُتُبٌ جَدِيدَةٌ",fr2:"Ce sont de nouveaux livres (féminin singulier !)"},
+verse:{ar:"وَلَوْلَا رِجَالٌ مُّؤْمِنُونَ وَنِسَاءٌ مُّؤْمِنَاتٌ",fr:"...S'il n'y avait pas eu des hommes croyants et des femmes croyantes...",ref:"Sourate al-Fath (48:25)"},
+q:{question:"Comment s'accorde le qualificatif d'un pluriel d'objets non-doués de raison ?",options:["Au pluriel masculin obligatoirement","Au féminin singulier","Toujours au duel","Il reste invariable"],correct:1}},
+
+{n:37,title:"Les pronoms interrogatifs (2) — كَمْ",ar:"أَسْمَاءُ الِاسْتِفْهَامِ",
+summary:"Pour interroger sur la quantité, on utilise le pronom كَمْ suivi de l'objet à compter, exprimé au singulier indéfini et au cas « direct » (marqué par la fatha).",
+example:{ar:"كَمْ طَالِبًا ؟",fr:"Combien d'étudiants ?",ar2:"كَمْ دَفْتَرًا ؟",fr2:"Combien de cahiers ?"},
+verse:{ar:"ثُمَّ بَعَثَهُ قَالَ كَمْ لَبِثْتَ",fr:"...Puis Il le ressuscita en disant : « Combien de temps as-tu demeuré ainsi ? »",ref:"Sourate al-Baqara (2:259)"},
+q:{question:"Sous quelle forme apparaît le nom compté après كَمْ ?",options:["Pluriel défini","Singulier indéfini au cas direct (fatha)","Duel toujours","Pluriel indéfini"],correct:1}},
+
+{n:38,title:"Le duel",ar:"الْمُثَنَّى",
+summary:"Le duel correspond à deux éléments. Il se construit en ajoutant ـانِ (ou ـيْنِ au cas direct/indirect) au singulier. On utilise le pronom هُمَا et les démonstratifs هَذَانِ/هَاتَانِ (proximité).",
+example:{ar:"قَلَمٌ → قَلَمَانِ",fr:"Un crayon → deux crayons",ar2:"هُمَا لِزَيْدٍ",fr2:"Ils (les deux) sont à Zayd"},
+verse:{ar:"وَإِن طَائِفَتَانِ مِنَ الْمُؤْمِنِينَ اقْتَتَلُوا فَأَصْلِحُوا بَيْنَهُمَا",fr:"Et si deux groupes de croyants se combattent, faites la conciliation entre eux...",ref:"Sourate al-Houjouraat (49:9)"},
+q:{question:"Quelle terminaison marque le duel (deux éléments) au cas régulier ?",options:["ـونَ","ـاتٌ","ـانِ","ـِين"],correct:2}},
+
+{n:39,title:"Les nombres (1)",ar:"الْأَعْدَادُ",
+summary:"Pour compter une ou deux unités, on utilise le singulier et le duel. À partir de trois (jusqu'à 10), le nombre est annexé au dénombré, qui est au pluriel indéfini, sans tanwin sur le nombre.",
+example:{ar:"حَامِدٌ طَالِبٌ",fr:"Hamid est un étudiant (singulier)",ar2:"هَؤُلَاءِ ثَلَاثَةُ طُلَّابٍ",fr2:"Voici trois étudiants (nombre annexé au pluriel indéfini)"},
+verse:{ar:"فَمَن لَّمْ يَجِدْ فَصِيَامُ ثَلَاثَةِ أَيَّامٍ",fr:"Quiconque n'en trouve pas les moyens devra jeûner trois jours...",ref:"Sourate al-Ma'ida (5:189)"},
+q:{question:"Entre 3 et 10 unités, sous quelle forme apparaît le nom dénombré ?",options:["Singulier défini","Pluriel défini","Pluriel indéfini, annexé au nombre","Duel"],correct:2}},
+
+{n:40,title:"Les nombres (2) — accord de genre",ar:"الْأَعْدَادُ",
+summary:"Entre 3 et 10 unités, le nombre (عَدَد) prend le genre OPPOSÉ du nom dénombré : un nom masculin prend un nombre féminin, et inversement.",
+example:{ar:"ثَلَاثَةُ طُلَّابٍ",fr:"Trois étudiants (nom masc. → nombre fém. avec ة)",ar2:"أَرْبَعُ طَالِبَاتٍ",fr2:"Quatre étudiantes (nom fém. → nombre masc. sans ة)"},
+verse:{ar:"فَكَفَّارَتُهُ إِطْعَامُ عَشَرَةِ مَسَاكِينَ",fr:"L'expiation en sera de nourrir dix pauvres...",ref:"Sourate al-Maa'ida (5:89)"},
+q:{question:"Quel genre prend le nombre (entre 3 et 10) par rapport au nom dénombré ?",options:["Le même genre","Le genre opposé","Toujours masculin","Toujours féminin"],correct:1}},
+
+{n:41,title:"L'interdit de tanwin (2) — adjectifs et pluriels",ar:"الْمَمْنُوعُ مِنَ الصَّرْفِ",
+summary:"Les adjectifs construits sur les formes أَفْعَلُ et فَعْلَانُ sont interdits de tanwin (ex: أَسْوَدُ noir, جَوْعَانُ affamé). De même pour les pluriels irréguliers sur les formes أَفْعِلَاءُ، فُعَلَاءُ et certaines formes de pluriel brisé.",
+example:{ar:"أَبْيَضُ، أَسْوَدُ",fr:"Blanc, noir (forme أَفْعَلُ — interdit de tanwin)",ar2:"عُلَمَاءُ، أَصْدِقَاءُ",fr2:"Savants, amis (pluriel sur فُعَلَاء/أَفْعِلَاء — interdit de tanwin)"},
+verse:{ar:"لَخَلْقُ السَّمَاوَاتِ وَالْأَرْضِ أَكْبَرُ مِنْ خَلْقِ النَّاسِ",fr:"La création des cieux et de la terre est quelque chose de plus grand que la création des gens...",ref:"Sourate Ghaafir (40:57)"},
+q:{question:"Lequel de ces adjectifs est interdit de tanwin ?",options:["جَدِيدٌ","كَبِيرٌ","أَسْوَدُ","صَغِيرٌ"],correct:2}},
+
+{n:42,title:"L'interdit de tanwin (3) — déclinaison irrégulière",ar:"الْمَمْنُوعُ مِنَ الصَّرْفِ",
+summary:"Les noms « interdits de tanwin » ont une déclinaison irrégulière au cas indirect : leur terminaison prend la fatha au lieu de la kasra. Ils reprennent une déclinaison régulière s'ils sont annexés ou précédés de ال.",
+example:{ar:"هٰذَا لِحَامِدٍ ؟ لَا، هٰذَا بِقَلَمٍ أَزْرَقَ",fr:"...avec un crayon bleu (أَزْرَقَ a la fatha au lieu de la kasra)",ar2:"كِتَابُ زَيْدٍ (annexé → kasra normale)",fr2:"Le livre de Zayd"},
+verse:{ar:"وَقَالَتِ امْرَأَتُ فِرْعَوْنَ قُرَّتُ عَيْنٍ لِّي وَلَكَ لَا تَقْتُلُوهُ",fr:"Et la femme de Pharaon dit : « (Cet enfant) réjouira mon œil et le tien ! Ne le tuez pas... »",ref:"Sourate al-Qasas (28:9)"},
+q:{question:"Au cas indirect, quelle voyelle prend un nom « interdit de tanwin » (au lieu de la kasra) ?",options:["La dhamma","La fatha","Le soukoun","Le tanwin"],correct:1}},
+];
+
+
 const BADGES_DEF=[
   {id:'first',ico:'🎯',name:'Premier pas',cond:'Terminer le niveau 1',check:s=>s.levelStars[1]>0},
   {id:'perfect',ico:'💯',name:'Perfectionniste',cond:'100% à un quiz',check:s=>s.perfect>0},
@@ -461,6 +824,8 @@ const BADGES_DEF=[
   {id:'vocab150',ico:'📖',name:'150 mots',cond:'Maîtriser 150 mots',check:s=>s.masteredWords.size>=150},
   {id:'flasher',ico:'⚡',name:'Flasheur',cond:'Compléter 3 sessions flashcard',check:s=>s.flashSessions>=3},
   {id:'speed',ico:'⏱️',name:'Speed Runner',cond:'Terminer un chrono sans faute',check:s=>s.speedPerfect>0},
+  {id:'gram10',ico:'📜',name:'Grammairien',cond:'10 fiches de grammaire maîtrisées',check:s=>s.completedFiches.size>=10},
+  {id:'gram42',ico:'🕌',name:'Maître de la Nahw',cond:'Les 42 fiches de grammaire maîtrisées',check:s=>s.completedFiches.size>=42},
 ];
 
 // ══════════════════════════════════════════════
@@ -473,6 +838,7 @@ let S={
   flashSessions:0, speedPerfect:0,
   history:[], // [{date,level,mode,score,total}]
   earnedBadges:new Set(),
+  unlockedFiches:[1], completedFiches:new Set(),
 };
 
 function loadS(){
@@ -494,6 +860,8 @@ function loadS(){
     S.speedPerfect=d.speedPerfect||0;
     S.history=d.history||[];
     S.earnedBadges=new Set(d.earnedBadges||[]);
+    S.unlockedFiches=d.unlockedFiches||[1];
+    S.completedFiches=new Set(d.completedFiches||[]);
   }catch(e){}
   updateStreak();
 }
@@ -503,6 +871,7 @@ function saveS(){
     masteredWords:[...S.masteredWords],
     failedWords:[...S.failedWords],
     earnedBadges:[...S.earnedBadges],
+    completedFiches:[...S.completedFiches],
   }));
 }
 function updateStreak(){
@@ -539,13 +908,15 @@ let activeTab='levels';
 function homeTab(tab){
   activeTab=tab;
   document.querySelectorAll('.nav-tab').forEach((b,i)=>{
-    b.classList.toggle('on',['levels','stats','badges'][i]===tab);
+    b.classList.toggle('on',['levels','grammar','stats','badges'][i]===tab);
   });
   document.getElementById('tab-levels').style.display=tab==='levels'?'':'none';
+  document.getElementById('tab-grammar').style.display=tab==='grammar'?'':'none';
   document.getElementById('tab-stats').style.display=tab==='stats'?'':'none';
   document.getElementById('tab-badges').style.display=tab==='badges'?'':'none';
   if(tab==='stats')renderStats();
   if(tab==='badges')renderBadges();
+  if(tab==='grammar')renderGramGrid();
 }
 function setDir(d){
   S.dir=d;saveS();
@@ -957,6 +1328,148 @@ function toast(msg){
   const el=document.getElementById('toast');
   el.textContent=msg;el.classList.add('show');
   clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),3200);
+}
+
+// ══════════════════════════════════════════════
+//  GRAMMAR MODULE
+// ══════════════════════════════════════════════
+let currentFicheN=1;
+
+function renderGramGrid(){
+  const total=GRAMMAR_FICHES.length;
+  const done=S.completedFiches.size;
+  document.getElementById('gram-progress-banner').innerHTML=
+    `📚 <strong>${done} / ${total}</strong> fiches maîtrisées — Méthode de Médine, Tome 1 <br><span style="font-size:.7rem">Contenu : © Arabe Réussite (arabereussite.com)</span>`;
+  const grid=document.getElementById('gram-grid');
+  grid.innerHTML='';
+  GRAMMAR_FICHES.forEach(f=>{
+    const unlocked=S.unlockedFiches.includes(f.n);
+    const done=S.completedFiches.has(f.n);
+    const card=document.createElement('div');
+    card.className='gram-card'+(unlocked?'':' locked')+(done?' done':'');
+    card.innerHTML=`
+      ${done?'<div class="gram-card-check">✅</div>':!unlocked?'<div class="gram-card-lock">🔒</div>':''}
+      <div class="gram-card-num">FICHE ${f.n}</div>
+      <div class="gram-card-title">${f.title}</div>
+    `;
+    if(unlocked) card.onclick=()=>openFiche(f.n);
+    grid.appendChild(card);
+  });
+}
+
+function openFiche(n){
+  currentFicheN=n;
+  renderFiche(n);
+  show('gramread');
+}
+
+function renderFiche(n){
+  const f=GRAMMAR_FICHES.find(x=>x.n===n);
+  document.getElementById('gr-lbl').textContent=`Fiche ${n} / ${GRAMMAR_FICHES.length}`;
+  document.getElementById('fiche-num').textContent=`FICHE #${f.n}`;
+  document.getElementById('fiche-title').textContent=f.title;
+  document.getElementById('fiche-ar').textContent=f.ar;
+  document.getElementById('fiche-summary').textContent=f.summary;
+  document.getElementById('fiche-ex-ar1').textContent=f.example.ar;
+  document.getElementById('fiche-ex-fr1').textContent=f.example.fr;
+  if(f.example.ar2){
+    document.getElementById('fiche-ex-line2').style.display='';
+    document.getElementById('fiche-ex-ar2').textContent=f.example.ar2;
+    document.getElementById('fiche-ex-fr2').textContent=f.example.fr2||'';
+    document.getElementById('fiche-ex-fr2').style.display='';
+  }else{
+    document.getElementById('fiche-ex-line2').style.display='none';
+    document.getElementById('fiche-ex-fr2').style.display='none';
+  }
+  document.getElementById('fiche-verse-ar').textContent=f.verse.ar;
+  document.getElementById('fiche-verse-fr').textContent='« '+f.verse.fr+' »';
+  document.getElementById('fiche-verse-ref').textContent=f.verse.ref+' — trad. Dr Hamidullah';
+}
+
+function goToGramQuiz(){
+  const f=GRAMMAR_FICHES.find(x=>x.n===currentFicheN);
+  document.getElementById('gq-lbl').textContent=`Fiche ${f.n} — ${f.title}`;
+  document.getElementById('gq-question').textContent=f.q.question;
+  const opts=f.q.options.map((opt,i)=>({text:opt,idx:i}));
+  shuffle(opts);
+  const optsGrid=document.getElementById('gq-opts');
+  optsGrid.innerHTML='';
+  gramAnswered=false;
+  document.getElementById('gq-feedback').style.display='none';
+  document.getElementById('gq-next-btn').style.display='none';
+  opts.forEach(o=>{
+    const b=document.createElement('button');
+    b.className='opt';
+    b.textContent=o.text;
+    b.onclick=()=>selectGramOpt(b,o.idx,f.q.correct,optsGrid);
+    optsGrid.appendChild(b);
+  });
+  show('gramquiz');
+}
+
+let gramAnswered=false;
+function selectGramOpt(btn,chosenIdx,correctIdx,grid){
+  if(gramAnswered)return;
+  gramAnswered=true;
+  const btns=grid.querySelectorAll('.opt');
+  btns.forEach((b,i)=>{
+    b.disabled=true;
+    const opt=[...grid.children][i];
+  });
+  // Find correct button by re-checking text match isn't reliable since shuffled;
+  // We stored idx via closures, so just mark using chosen vs correct comparison done at click-time.
+  const ok=chosenIdx===correctIdx;
+  if(ok)btn.classList.add('ok');else btn.classList.add('bad');
+  // Highlight correct one too if wrong
+  if(!ok){
+    grid.querySelectorAll('.opt').forEach(b=>{
+      if(b.textContent===GRAMMAR_FICHES.find(x=>x.n===currentFicheN).q.options[correctIdx]) b.classList.add('ok');
+    });
+  }
+  const fb=document.getElementById('gq-feedback');
+  fb.style.display='';
+  fb.className='feedback '+(ok?'ok':'bad');
+  fb.textContent=ok?'✅ Exact ! Tu as bien compris la règle.':'❌ Pas tout à fait — relis la fiche si besoin.';
+  if(ok){
+    S.completedFiches.add(currentFicheN);
+    const nextN=currentFicheN+1;
+    if(nextN<=GRAMMAR_FICHES.length && !S.unlockedFiches.includes(nextN)) S.unlockedFiches.push(nextN);
+    S.points+=2;
+    saveS();
+    checkBadges();
+  }
+  document.getElementById('gq-next-btn').style.display='';
+  document.getElementById('gq-next-btn').textContent=ok?'Continuer →':'Réessayer la fiche →';
+}
+
+function gramQuizNext(){
+  const f=GRAMMAR_FICHES.find(x=>x.n===currentFicheN);
+  const wasCompleted=S.completedFiches.has(currentFicheN);
+  if(wasCompleted){
+    const ico=document.getElementById('gr-res-ico');
+    const title=document.getElementById('gr-res-title');
+    const sub=document.getElementById('gr-res-sub');
+    const nextBtn=document.getElementById('gr-res-next');
+    if(currentFicheN<GRAMMAR_FICHES.length){
+      ico.textContent='🎓';
+      title.textContent='Fiche maîtrisée !';
+      sub.textContent=`Fiche ${currentFicheN+1} débloquée : « ${GRAMMAR_FICHES[currentFicheN].title} »`;
+      nextBtn.style.display='';
+      nextBtn.textContent='Fiche suivante →';
+      nextBtn.onclick=()=>openFiche(currentFicheN+1);
+    }else{
+      ico.textContent='🏆';
+      title.textContent='Les 42 fiches sont terminées !';
+      sub.textContent='Tu maîtrises toute la grammaire du Tome 1 de la méthode de Médine. Direction le Tome 2 !';
+      nextBtn.style.display='';
+      nextBtn.textContent='🏠 Accueil';
+      nextBtn.onclick=()=>{renderHome();homeTab('grammar');};
+    }
+    show('gramresult');
+  }else{
+    // retry same fiche quiz
+    goToGramQuiz();
+  }
 }
 
 // ══════════════════════════════════════════════
